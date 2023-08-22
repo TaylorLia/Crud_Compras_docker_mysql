@@ -1,0 +1,23 @@
+Comando com docker cp:
+
+docker-compose up -d database_slave
+docker cp ./slave/my.cnf database_slave:/etc/my.cnf
+docker-compose restart database_slave
+
+
+CREATE USER 'replicacao'@'%' IDENTIFIED BY 'replicacao';
+GRANT REPLICATION SLAVE ON *.* TO 'replicacao'@'%';
+FLUSH PRIVILEGES;
+FLUSH TABLES WITH READ LOCK;
+SHOW MASTER STATUS;
+
+1.000003 |      839 | db_prisma
+
+
+	CHANGE MASTER TO MASTER_HOST='database_master',
+						MASTER_USER='replicacao',
+						MASTER_PASSWORD='replicacao',
+						MASTER_LOG_FILE='1.000003',
+						MASTER_LOG_POS=839;
+	SHOW SLAVE STATUS\G;
+

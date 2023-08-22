@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           Int       @id @default(autoincrement())
+  nome         String
+  usuario      String    @unique
+  senha        String
+  cpf          String
+  email        String
+  endereco     String
+  numero       Int?
+  bairro       String?
+  cidade       String
+  cep          String?
+  fone         String?
+  is_adm       Boolean  @default(false)
+  ultimo_acesso DateTime?
+  pedidos      Pedido[]
+}
+
+model Produto {
+  id          Int       @id @default(autoincrement())
+  nome        String
+  descricao   String?
+  preco       Float
+  imagem      String?
+  categoria   String?
+  carrinhos   Carrinho[]
+}
+
+model Pedido {
+  id            Int         @id @default(autoincrement())
+  usuario_id    Int
+  dt_inclusao   DateTime    @default(now())
+  dt_alteracao  DateTime    @default(now())
+  vlr_total     Float
+  status        Status      @default(PENDENTE)
+  usuario       Usuario     @relation(fields: [usuario_id], references: [id])
+  carrinhos     Carrinho[]
+}
+
+model Carrinho {
+  id          Int      @id @default(autoincrement())
+  pedido_id   Int
+  produto_id  Int
+  qtde        Int
+  vlr_unitario Float
+  pedido      Pedido   @relation(fields: [pedido_id], references: [id])
+  produto     Produto  @relation(fields: [produto_id], references: [id])
+
+  @@unique([pedido_id, produto_id])
+}
+
+enum Status {
+  PENDENTE
+  PAGO
+  FINALIZADO
+}
